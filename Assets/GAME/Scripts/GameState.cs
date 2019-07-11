@@ -1,18 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using Zenject;
 
-public class GameState : MonoBehaviour
+public interface IGameState
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    CharacterModel[] CharacterModels { get; set; }
+}
 
-    // Update is called once per frame
-    void Update()
+public class GameState : IInitializable, IGameState
+{
+    public CharacterModel[] CharacterModels { get; set; }
+
+    public void Initialize()
     {
-        
+        Debug.Log("[GameState] --> Initialized");
     }
 }
