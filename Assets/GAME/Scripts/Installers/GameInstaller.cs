@@ -8,5 +8,7 @@ public class GameInstaller : MonoInstaller<GameInstaller>
             .AsSingle();
         Container.BindInterfacesAndSelfTo<GameConfig>()
             .AsSingle();
+        Container.BindInterfacesAndSelfTo<WebRequestService>()
+            .AsSingle();
     }
 }
