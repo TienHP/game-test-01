@@ -3,12 +3,20 @@ using Zenject;
 
 public interface IGameState
 {
+    GameStageModel GameStageModel { get; set; }
     CharacterModel[] CharacterModels { get; set; }
+    SpineData[] SpineData { get; set; }
 }
 
-public class GameState : IInitializable, IGameState
+public class GameState : IInitializable,
+    IGameState
 {
+    public GameStageModel GameStageModel { get; set; }
+
+
     public CharacterModel[] CharacterModels { get; set; }
+
+    public SpineData[] SpineData { get; set; }
 
     public void Initialize()
     {

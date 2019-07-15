@@ -10,18 +10,28 @@
         <e p="GAME" t="Include">
           <e p="Scripts" t="Include">
             <e p="CharacterModel.cs" t="Include" />
+            <e p="CharacterView.cs" t="Include" />
             <e p="Constant.cs" t="Include" />
             <e p="GameConfig.cs" t="Include" />
+            <e p="GameStageModel.cs" t="Include" />
+            <e p="GameStagePresenter.cs" t="Include" />
+            <e p="GameStageView.cs" t="Include" />
             <e p="GameState.cs" t="Include" />
             <e p="Installers" t="Include">
               <e p="GameInstaller.cs" t="Include" />
             </e>
-            <e p="ProgramEntry.cs" t="Include" />
+            <e p="ModelConverter.cs" t="Include" />
+            <e p="MVP" t="Include">
+              <e p="IModel.cs" t="Include" />
+              <e p="IPresenter.cs" t="Include" />
+              <e p="IView.cs" t="Include" />
+            </e>
+            <e p="ProgramLogic.cs" t="Include" />
+            <e p="ResourceCreator.cs" t="Include" />
+            <e p="ResourceLoader.cs" t="Include" />
+            <e p="SpineData.cs" t="Include" />
             <e p="UrlUtils.cs" t="Include" />
             <e p="WebRequestService.cs" t="Include" />
-          </e>
-          <e p="Spine" t="Include">
-            <e p="axie.atlas.txt" t="Include" />
           </e>
         </e>
         <e p="Plugins" t="Include">
@@ -721,6 +731,20 @@
             <e p="Version.txt" t="Include" />
             <e p="zenject.asmdef" t="Include" />
           </e>
+        </e>
+        <e p="ScreenLogger" t="Include">
+          <e p="Editor" t="Include">
+            <e p="ScreenLoggerEditor.cs" t="Include" />
+          </e>
+          <e p="Example" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="BouncingBall.cs" t="Include" />
+              <e p="Rotator.cs" t="Include" />
+              <e p="Test.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Readme.txt" t="Include" />
+          <e p="ScreenLogger.cs" t="Include" />
         </e>
         <e p="Spine" t="Include">
           <e p="Editor" t="Include">
