@@ -20,6 +20,7 @@
       <Path>Logs</Path>
       <Path>New folder</Path>
       <Path>Temp</Path>
+      <Path>node_modules</Path>
       <Path>obj</Path>
     </explicitExcludes>
   </component>

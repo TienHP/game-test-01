@@ -1262,6 +1262,7 @@
         </e>
       </e>
       <e p="game-test-01.sln" t="IncludeFlat" />
+      <e p="node_modules\@umm\unirx_observabletween" t="IncludeRecursive" />
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />
       <e p="Temp\bin" t="ExcludeRecursive" />
