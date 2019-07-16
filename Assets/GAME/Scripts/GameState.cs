@@ -3,7 +3,7 @@ using Zenject;
 
 public interface IGameState
 {
-    GameStageModel GameStageModel { get; set; }
+    StageModel StageModel { get; set; }
     CharacterModel[] CharacterModels { get; set; }
     SpineData[] SpineData { get; set; }
 }
@@ -11,7 +11,7 @@ public interface IGameState
 public class GameState : IInitializable,
     IGameState
 {
-    public GameStageModel GameStageModel { get; set; }
+    public StageModel StageModel { get; set; }
 
 
     public CharacterModel[] CharacterModels { get; set; }

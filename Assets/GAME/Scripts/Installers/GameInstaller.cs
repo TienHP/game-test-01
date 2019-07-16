@@ -4,7 +4,8 @@ using Zenject;
 public class GameInstaller : MonoInstaller<GameInstaller>
 {
     [SerializeField] private GameObject _characterPrefab;
-    [SerializeField] private Transform _characterRoot;
+    [SerializeField] private GameObject _stagePrefab;
+    [SerializeField] private Transform _root;
 
     public override void InstallBindings()
     {
@@ -24,7 +25,11 @@ public class GameInstaller : MonoInstaller<GameInstaller>
             .AsSingle();
         Container.BindIFactory<CharacterView>()
             .FromComponentInNewPrefab(_characterPrefab)
-            .UnderTransform(_characterRoot)
+            .UnderTransform(_root)
+            .AsCached();
+        Container.BindIFactory<Stage>()
+            .FromComponentInNewPrefab(_stagePrefab)
+            .UnderTransform(_root)
             .AsCached();
     }
 }

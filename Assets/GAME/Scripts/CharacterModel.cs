@@ -1,6 +1,15 @@
+public static partial class Constant
+{
+    public static class CharacterModel
+    {
+        public const float ScaleXPlayer = -1.0f;
+    }
+}
+
 public struct CharacterModel : IModel
 {
-    public string Id { get; set; }
-    public int HP { get; set; }
-    public int Damage { get; set; }
+    public string Id;
+    public int HP;
+    public int Damage;
+    public bool IsPlayer;
 }

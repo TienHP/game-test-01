@@ -13,7 +13,6 @@
             <e p="CharacterView.cs" t="Include" />
             <e p="Constant.cs" t="Include" />
             <e p="GameConfig.cs" t="Include" />
-            <e p="GameStageModel.cs" t="Include" />
             <e p="GameStagePresenter.cs" t="Include" />
             <e p="GameStageView.cs" t="Include" />
             <e p="GameState.cs" t="Include" />
@@ -30,8 +29,13 @@
             <e p="ResourceCreator.cs" t="Include" />
             <e p="ResourceLoader.cs" t="Include" />
             <e p="SpineData.cs" t="Include" />
+            <e p="Stage.cs" t="Include" />
+            <e p="StageModel.cs" t="Include" />
             <e p="UrlUtils.cs" t="Include" />
             <e p="WebRequestService.cs" t="Include" />
+          </e>
+          <e p="Spine" t="Include">
+            <e p="axie.atlas.txt" t="Include" />
           </e>
         </e>
         <e p="Plugins" t="Include">
