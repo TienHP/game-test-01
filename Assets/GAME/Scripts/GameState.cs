@@ -1,25 +1,8 @@
-﻿using UnityEngine;
-using Zenject;
-
-public interface IGameState
+﻿public class GameState
 {
-    StageModel StageModel { get; set; }
-    CharacterModel[] CharacterModels { get; set; }
-    SpineData[] SpineData { get; set; }
-}
+    public StageModel StageModel;
 
-public class GameState : IInitializable,
-    IGameState
-{
-    public StageModel StageModel { get; set; }
+    public CharacterModel[] CharacterModels;
 
-
-    public CharacterModel[] CharacterModels { get; set; }
-
-    public SpineData[] SpineData { get; set; }
-
-    public void Initialize()
-    {
-        Debug.Log("[GameState] --> Initialized");
-    }
+    public SpineData[] SpineData;
 }

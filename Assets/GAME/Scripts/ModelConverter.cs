@@ -1,4 +1,6 @@
 public abstract class ModelConverter<TSource, TTarget> where TTarget : IModel
+    where TSource : IModel
 {
-    public abstract TTarget GetModel(TSource source);
+    public abstract void Convert(ref TTarget target,
+        TSource source);
 }

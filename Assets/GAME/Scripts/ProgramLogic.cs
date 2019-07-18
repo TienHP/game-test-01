@@ -7,7 +7,7 @@ public class ProgramLogic : MonoBehaviour
 {
     [Inject] private ResourceLoader _resourceLoader;
     [Inject] private IGameStagePresenter _gameStagePresenter;
-    [Inject] private IGameState _gameState;
+    [Inject] private GameState _gameState;
     [Inject] private ResourceCreator _resourceCreator;
 
     // Start is called before the first frame update
@@ -35,7 +35,7 @@ public class ProgramLogic : MonoBehaviour
                     return new CharacterModel
                     {
                         Id = id,
-                        HP = 100,
+                        HP = new ReactiveProperty<int>(100),
                         Damage = 0,
                         IsPlayer = true
                     };
@@ -44,7 +44,7 @@ public class ProgramLogic : MonoBehaviour
                 return new CharacterModel
                 {
                     Id = id,
-                    HP = 100,
+                    HP = new ReactiveProperty<int>(100),
                     Damage = 0,
                     IsPlayer = false
                 };

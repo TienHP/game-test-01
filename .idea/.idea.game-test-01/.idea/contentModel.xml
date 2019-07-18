@@ -9,15 +9,16 @@
       <e p="Assets" t="Include">
         <e p="GAME" t="Include">
           <e p="Scripts" t="Include">
-            <e p="CharacterModel.cs" t="Include" />
-            <e p="CharacterView.cs" t="Include" />
             <e p="Constant.cs" t="Include" />
             <e p="GameConfig.cs" t="Include" />
-            <e p="GameStagePresenter.cs" t="Include" />
-            <e p="GameStageView.cs" t="Include" />
             <e p="GameState.cs" t="Include" />
             <e p="Installers" t="Include">
               <e p="GameInstaller.cs" t="Include" />
+            </e>
+            <e p="Model" t="Include">
+              <e p="CharacterModel.cs" t="Include" />
+              <e p="Stage.cs" t="Include" />
+              <e p="StageModel.cs" t="Include" />
             </e>
             <e p="ModelConverter.cs" t="Include" />
             <e p="MVP" t="Include">
@@ -25,17 +26,39 @@
               <e p="IPresenter.cs" t="Include" />
               <e p="IView.cs" t="Include" />
             </e>
+            <e p="Presenter" t="Include">
+              <e p="AttackingLogicStrategy.cs" t="Include" />
+              <e p="GameStagePresenter.cs" t="Include" />
+              <e p="HPBarModel.cs" t="Include" />
+              <e p="IGameStagePresenter.cs" t="Include" />
+              <e p="TransformUtils.cs" t="Include" />
+            </e>
             <e p="ProgramLogic.cs" t="Include" />
             <e p="ResourceCreator.cs" t="Include" />
             <e p="ResourceLoader.cs" t="Include" />
             <e p="SpineData.cs" t="Include" />
-            <e p="Stage.cs" t="Include" />
-            <e p="StageModel.cs" t="Include" />
+            <e p="TestOuterCancel.cs" t="Include" />
+            <e p="TestScript.cs" t="Include" />
             <e p="UrlUtils.cs" t="Include" />
+            <e p="View" t="Include">
+              <e p="Character.cs" t="Include" />
+              <e p="HPBarView.cs" t="Include" />
+            </e>
             <e p="WebRequestService.cs" t="Include" />
           </e>
           <e p="Spine" t="Include">
             <e p="axie.atlas.txt" t="Include" />
+          </e>
+        </e>
+        <e p="Modules" t="Include">
+          <e p="umm@unirx_observabletween" t="Include">
+            <e p="Scripts" t="Include">
+              <e p="UniRx" t="Include">
+                <e p="UnityEngineBridge" t="Include">
+                  <e p="ObservableTween.cs" t="Include" />
+                </e>
+              </e>
+            </e>
           </e>
         </e>
         <e p="Plugins" t="Include">
