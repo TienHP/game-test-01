@@ -39,15 +39,17 @@ public class GameStagePresenter : IGameStagePresenter
     private Stage _stage;
     private int _maxOrder;
     private CancellationTokenSource _updatingHPBarToken;
+    private CancellationTokenSource _processAttackingToken;
     private GameConfig _gameConfig;
 
     private Vector3 _playerSpawnPos;
     private Vector3 _enemySpawnPos;
-    private bool _isAttacking = false;
 
     private Vector3 _offsetY = new Vector3(0,
         1.5f,
         0);
+
+    private bool _isAttacking = false;
 
     private int IncMax()
     {
@@ -189,6 +191,8 @@ public class GameStagePresenter : IGameStagePresenter
         {
             _gameOverSubject.OnNext(false);
         }
+
+        _processAttackingToken.Cancel();
     }
 
     private async UniTask UpdateHPBarPosAsync(CancellationToken cancellationToken)
@@ -218,7 +222,7 @@ public class GameStagePresenter : IGameStagePresenter
     {
         if (_isAttacking)
         {
-            Debug.LogWarning("[GameStagePresenter] --> is attacking");
+            Debug.LogWarning("[GameStagePresenter] -- is attacking");
             return;
         }
 
@@ -232,8 +236,11 @@ public class GameStagePresenter : IGameStagePresenter
             playerCharacterIds.Count)];
         var targetId = enemyCharacterIds[Random.Range(0,
             enemyCharacterIds.Count)];
+        _processAttackingToken = new CancellationTokenSource();
         ProcessAttack(attackerId,
-            targetId);
+                targetId,
+                _processAttackingToken.Token)
+            .Forget(_ => { _isAttacking = false; });
     }
 
     private Vector3 GetStartMovingPos(Character character)
@@ -248,12 +255,14 @@ public class GameStagePresenter : IGameStagePresenter
     }
 
 
-    private void ProcessAttack(string attackerId,
-        string targetId)
+    private async UniTask ProcessAttack(string attackerId,
+        string targetId,
+        CancellationToken processAttackingToken)
     {
         _isAttacking = true;
         var attackerView = _characterViews[attackerId];
         var targetView = _characterViews[targetId];
+        var isLock = true;
 
         //do when target bitten
         void OnTargetBitten(AttackParameters parameters)
@@ -263,23 +272,21 @@ public class GameStagePresenter : IGameStagePresenter
             {
                 OnBittenFinished = bittenParameters =>
                 {
-                    _isAttacking = false;
                     Debug.Log("[AttackingLogic] --> Finished bitten anim");
                     //apply dam
                     var charId = _characterViews.FirstOrDefault(pair => pair.Value == parameters.Character)
                         .Key;
                     var tarId = _characterViews.FirstOrDefault(pair => pair.Value == parameters.Target)
                         .Key;
-                    var characterModel = _characterModelList.FirstOrDefault(model => model.Id.Equals(charId));
-                    var targetModel = _characterModelList.FirstOrDefault(model => model.Id.Equals(tarId));
-                    if (characterModel == null || targetModel == null)
+                    var charModel = _characterModelList.FirstOrDefault(model => model.Id.Equals(charId));
+                    var targModel = _characterModelList.FirstOrDefault(model => model.Id.Equals(tarId));
+                    if (charModel == null || targModel == null)
                     {
                         return;
                     }
 
-                    Debug.LogWarning($"{characterModel.Id} dameto {targetModel.Id}");
-                    targetModel.HP.Value -= Random.Range(5,
-                        characterModel.Damage + 1);
+                    targModel.HP.Value -= Random.Range(5,
+                        charModel.Damage + 1);
                 }
             });
         }
@@ -301,6 +308,7 @@ public class GameStagePresenter : IGameStagePresenter
                         MoveDuration = Constant.GameStagePresenter.MoveDuration,
                         StartPos = p.TargetPos,
                         TargetPos = p.StartPos,
+                        OnActionFinished = _ => isLock = false
                     });
                 }
             });
@@ -325,6 +333,14 @@ public class GameStagePresenter : IGameStagePresenter
                 });
             },
         });
+
+        while (isLock)
+        {
+            processAttackingToken.ThrowIfCancellationRequested();
+            await UniTask.Yield();
+        }
+
+        _isAttacking = false;
     }
 
 

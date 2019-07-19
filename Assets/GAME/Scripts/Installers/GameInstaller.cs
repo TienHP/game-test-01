@@ -29,15 +29,16 @@ public class GameInstaller : MonoInstaller<GameInstaller>
             .AsSingle();
         Container.BindInterfacesAndSelfTo<WebRequestService>()
             .AsSingle();
+        Container.BindInterfacesAndSelfTo<CacheService>()
+            .AsSingle();
         Container.BindInterfacesAndSelfTo<ResourceLoader>()
             .AsSingle();
         Container.BindInterfacesAndSelfTo<ResourceCreator>()
             .AsSingle();
-        Container.BindInterfacesAndSelfTo<GameStagePresenter>()
-            .AsSingle();
+        Container.BindIFactory<IGameStagePresenter>()
+            .To<GameStagePresenter>();
 
         Container.BindMemoryPool<Character, Character.Pool>()
-            .WithInitialSize(100)
             .FromComponentInNewPrefab(_characterPrefab)
             .UnderTransform(_worldRoot)
             .AsCached();
@@ -48,7 +49,6 @@ public class GameInstaller : MonoInstaller<GameInstaller>
             .AsSingle();
 
         Container.BindMemoryPool<HPBarView, HPBarView.Pool>()
-            .WithInitialSize(100)
             .FromComponentInNewPrefab(_hpBarPrefab)
             .UnderTransform(_worldUIRoot.transform)
             .AsCached();

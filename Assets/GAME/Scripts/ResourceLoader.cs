@@ -3,9 +3,19 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
 
+public static partial class Constant
+{
+    public static class ResourceLoader
+    {
+        public const string ModelPrefix = "Model";
+        public const string AtlasPrefix = "Atlas";
+    }
+}
+
 public class ResourceLoader
 {
     [Inject] private IWebRequestService _webRequestService;
+    [Inject] private ICacheService _cacheService;
 
     public async UniTask<SpineData[]> LoadCharacterData(string[] idList)
     {
@@ -15,12 +25,40 @@ public class ResourceLoader
             i++)
         {
             var id = idList[i];
-            var txtModel = await _webRequestService.GetTextAsync(
-                UnityWebRequest.Get(UrlUtils.GetCharacterJsonUrl(id)));
+            var modelId = $"{Constant.ResourceLoader.ModelPrefix}_{id}";
+            var txtModel = _cacheService.GetCacheText(modelId);
+            if (string.IsNullOrEmpty(txtModel))
+            {
+                txtModel = await _webRequestService.GetTextAsync(
+                    UnityWebRequest.Get(UrlUtils.GetCharacterJsonUrl(id)));
+                _cacheService.SetCacheText(modelId,
+                    txtModel);
+            }
+            else
+            {
+                Debug.Log($"Load from cache ok {modelId}");
+            }
+
             Debug.Log($"-->[ProgramEntry] received player character: {txtModel}");
-            var txtAtlas = await _webRequestService.GetTextAsync(
-                UnityWebRequest.Get(UrlUtils.GetCharacterAtlasUrl(id)));
+
+
+            var atlasId = $"{Constant.ResourceLoader.AtlasPrefix}_{id}";
+            var txtAtlas = _cacheService.GetCacheText(atlasId);
+            if (string.IsNullOrEmpty(txtAtlas))
+            {
+                txtAtlas = await _webRequestService.GetTextAsync(
+                    UnityWebRequest.Get(UrlUtils.GetCharacterAtlasUrl(id)));
+                _cacheService.SetCacheText(atlasId,
+                    txtAtlas);
+            }
+            else
+            {
+                Debug.Log($"Load from cache ok: {atlasId}");
+            }
+
             Debug.Log($"-->[ProgramEntry] received player atlas: {txtAtlas}");
+
+
             var characterTextureUrl = UrlUtils.GetCharacterTextureUrl(id);
             Debug.Log($"-->[ProgramEntry] downloading character texture url: {characterTextureUrl}");
             var texture2D =

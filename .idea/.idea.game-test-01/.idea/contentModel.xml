@@ -9,6 +9,7 @@
       <e p="Assets" t="Include">
         <e p="GAME" t="Include">
           <e p="Scripts" t="Include">
+            <e p="CacheService.cs" t="Include" />
             <e p="Constant.cs" t="Include" />
             <e p="GameConfig.cs" t="Include" />
             <e p="GameState.cs" t="Include" />
@@ -51,7 +52,7 @@
             </e>
             <e p="WebRequestService.cs" t="Include" />
           </e>
-          <e p="Spine" t="Include">
+          <e p="TestSpine" t="Include">
             <e p="axie.atlas.txt" t="Include" />
           </e>
         </e>
@@ -1333,6 +1334,11 @@
           <e p="UnityAsyncExtensions.cs" t="Include" />
           <e p="UnityAsyncExtensions.Jobs.cs" t="Include" />
           <e p="UnityAsyncExtensions.uGUI.cs" t="Include" />
+        </e>
+        <e p="UnityPackages" t="Include">
+          <e p="JsonNetSample" t="Include">
+            <e p="JsonNetSample.cs" t="Include" />
+          </e>
         </e>
       </e>
       <e p="game-test-01.sln" t="IncludeFlat" />

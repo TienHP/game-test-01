@@ -7,12 +7,16 @@ using Zenject;
 public class ProgramLogic : MonoBehaviour
 {
     [Inject] private ResourceLoader _resourceLoader;
-    [Inject] private IGameStagePresenter _gameStagePresenter;
     [Inject] private ResourceCreator _resourceCreator;
 
     [Inject] private LoadingMenu.Factory _loadingMenuFac;
     [Inject] private PlayMenu.Factory _playMenuFac;
     [Inject] private GameOverMenu.Factory _gameOverMenuFac;
+    [Inject] private IFactory<IGameStagePresenter> _gameStagePresenterFac;
+    [Inject] private Character.Pool _characterPool;
+    [Inject] private HPBarView.Pool _hpBarViewPool;
+
+    private IGameStagePresenter _gameStagePresenter;
     private SpineData[] _spineData;
     private string[] _dataIds;
     private string _playerDataId;
@@ -29,7 +33,6 @@ public class ProgramLogic : MonoBehaviour
             .Open();
         _spineData = await _resourceLoader.LoadCharacterData(_dataIds);
 
-        Debug.Log("[ProgramLogic] --> Done.");
 
         Debug.Log("[ProgramLogic] creating skeleton data asset ...");
         //create spine asset and cache
@@ -37,6 +40,7 @@ public class ProgramLogic : MonoBehaviour
             .Subscribe(data => data.SkeletonDataAsset = _resourceCreator.CreateSkeletonDataAsset(data));
         Debug.Log("[ProgramLogic] --> Done.");
 
+        _gameStagePresenter = _gameStagePresenterFac.Create();
         InitGame();
 
         var playMenu = _playMenuFac.Create();
@@ -48,6 +52,11 @@ public class ProgramLogic : MonoBehaviour
                 Play();
             });
 
+        RegisterGameOver();
+    }
+
+    private void RegisterGameOver()
+    {
         //logic when game over
         _gameStagePresenter.OnGameOverAsObservable()
             .Subscribe(isWin =>
@@ -58,7 +67,9 @@ public class ProgramLogic : MonoBehaviour
                     .Subscribe(_ =>
                     {
                         _gameStagePresenter.Clear();
+                        _gameStagePresenter = _gameStagePresenterFac.Create();
                         InitGame();
+                        RegisterGameOver();
                         Play();
                         _gameOverMenu.Close();
                     });
@@ -67,8 +78,9 @@ public class ProgramLogic : MonoBehaviour
 
     private void InitGame()
     {
+        _characterPool.Resize(50);
+        _hpBarViewPool.Resize(50);
         //create character views and present the game stage
-        Debug.Log("[ProgramLogic] Present ...");
         _gameStagePresenter
             .SetSpineData(_spineData)
             .SetDataIds(_dataIds,

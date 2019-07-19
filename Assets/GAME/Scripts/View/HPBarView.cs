@@ -18,8 +18,6 @@ public class HPBarView : MonoBehaviour,
 
     public void UpdateView(int hp)
     {
-        Debug.Log($"[HpBarView] --> updateview {hp}");
-
         var remainingBarFillAmount = (float) hp / Constant.CharacterModel.MaxHP;
         ObservableTween.Tween(_remainingBar.fillAmount,
                 remainingBarFillAmount,
