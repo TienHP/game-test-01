@@ -14,6 +14,7 @@ public static partial class Constant
     {
         public const float HPBarHeightOnScreen = 100.0f;
         public const float MoveDuration = 1.0f;
+        public const float DistanceNearTarget = -1.0f;
     }
 }
 
@@ -251,7 +252,7 @@ public class GameStagePresenter : IGameStagePresenter
     private Vector3 GetStopMovingPos(Character character)
     {
         return character.Transform.position +
-               character.Transform.TransformDirection(Vector3.right) * -2.0f;
+               character.Transform.TransformDirection(Vector3.right) * Constant.GameStagePresenter.DistanceNearTarget;
     }
 
 

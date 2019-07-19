@@ -1,6 +1,4 @@
-﻿using System;
-using UniRx;
-using UniRx.Async;
+﻿using UniRx;
 using UnityEngine;
 using Zenject;
 
@@ -24,15 +22,13 @@ public class ProgramLogic : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
-        await UniTask.Delay(TimeSpan.FromSeconds(0.5f));
+        _loadingMenuFac.Create()
+            .Open();
         Debug.Log("[ProgramLogic] downloading data...");
         //download and cache data
         _dataIds = new[] {"3999", "4000"};
         _playerDataId = "3999";
-        _loadingMenuFac.Create()
-            .Open();
         _spineData = await _resourceLoader.LoadCharacterData(_dataIds);
-
 
         Debug.Log("[ProgramLogic] creating skeleton data asset ...");
         //create spine asset and cache

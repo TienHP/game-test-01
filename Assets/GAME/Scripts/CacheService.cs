@@ -43,6 +43,7 @@ public class CacheService : ICacheService,
         catch (Exception e)
         {
             Debug.LogWarning($"[CacheService] --> {e.Message}");
+            File.Delete(GetDataPath());
         }
     }
 
@@ -69,6 +70,7 @@ public class CacheService : ICacheService,
         catch (Exception ex)
         {
             Debug.LogWarning($"[CacheService] -->{ex.Message}");
+            File.Delete(GetDataPath());
         }
     }
 }

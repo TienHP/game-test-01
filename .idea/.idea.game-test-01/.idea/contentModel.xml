@@ -22,7 +22,6 @@
               <e p="Stage.cs" t="Include" />
               <e p="StageModel.cs" t="Include" />
             </e>
-            <e p="ModelConverter.cs" t="Include" />
             <e p="MVP" t="Include">
               <e p="IModel.cs" t="Include" />
               <e p="IPresenter.cs" t="Include" />
