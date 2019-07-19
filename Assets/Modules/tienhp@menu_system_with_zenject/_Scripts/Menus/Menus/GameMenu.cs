@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using MenuSystemWithZenject;
+﻿using MenuSystemWithZenject;
 
 
 public class GameMenu : Menu<GameMenu>

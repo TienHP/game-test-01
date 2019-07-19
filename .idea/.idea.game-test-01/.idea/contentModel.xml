@@ -14,6 +14,7 @@
             <e p="GameState.cs" t="Include" />
             <e p="Installers" t="Include">
               <e p="GameInstaller.cs" t="Include" />
+              <e p="MenuInstaller.cs" t="Include" />
             </e>
             <e p="Model" t="Include">
               <e p="CharacterModel.cs" t="Include" />
@@ -43,7 +44,10 @@
             <e p="UrlUtils.cs" t="Include" />
             <e p="View" t="Include">
               <e p="Character.cs" t="Include" />
+              <e p="GameOverMenu.cs" t="Include" />
               <e p="HPBarView.cs" t="Include" />
+              <e p="LoadingMenu.cs" t="Include" />
+              <e p="PlayMenu.cs" t="Include" />
             </e>
             <e p="WebRequestService.cs" t="Include" />
           </e>
@@ -52,6 +56,24 @@
           </e>
         </e>
         <e p="Modules" t="Include">
+          <e p="tienhp@menu_system_with_zenject" t="Include">
+            <e p="_Scripts" t="Include">
+              <e p="Installers" t="Include">
+                <e p="GlobalInstaller.cs" t="Include" />
+              </e>
+              <e p="Menus" t="Include">
+                <e p="Menus" t="Include">
+                  <e p="GameMenu.cs" t="Include" />
+                  <e p="StartMenu.cs" t="Include" />
+                </e>
+                <e p="MenuSystemWithZenject" t="Include">
+                  <e p="Menu.cs" t="Include" />
+                  <e p="MenuManager.cs" t="Include" />
+                  <e p="MenuManagerMonoBehaviour.cs" t="Include" />
+                </e>
+              </e>
+            </e>
+          </e>
           <e p="umm@unirx_observabletween" t="Include">
             <e p="Scripts" t="Include">
               <e p="UniRx" t="Include">
@@ -1179,6 +1201,34 @@
             </e>
           </e>
         </e>
+        <e p="TextMesh Pro" t="Include">
+          <e p="Fonts" t="Include">
+            <e p="LiberationSans - OFL.txt" t="Include" />
+          </e>
+          <e p="Resources" t="Include">
+            <e p="LineBreaking Following Characters.txt" t="Include" />
+            <e p="LineBreaking Leading Characters.txt" t="Include" />
+            <e p="Shaders" t="Include">
+              <e p="TMP_Bitmap-Custom-Atlas.shader" t="Include" />
+              <e p="TMP_Bitmap-Mobile.shader" t="Include" />
+              <e p="TMP_Bitmap.shader" t="Include" />
+              <e p="TMP_SDF Overlay.shader" t="Include" />
+              <e p="TMP_SDF-Mobile Masking.shader" t="Include" />
+              <e p="TMP_SDF-Mobile Overlay.shader" t="Include" />
+              <e p="TMP_SDF-Mobile.shader" t="Include" />
+              <e p="TMP_SDF-Surface-Mobile.shader" t="Include" />
+              <e p="TMP_SDF-Surface.shader" t="Include" />
+              <e p="TMP_SDF.shader" t="Include" />
+              <e p="TMP_Sprite.shader" t="Include" />
+              <e p="TMPro.cginc" t="Include" />
+              <e p="TMPro_Properties.cginc" t="Include" />
+              <e p="TMPro_Surface.cginc" t="Include" />
+            </e>
+          </e>
+          <e p="Sprites" t="Include">
+            <e p="EmojiOne Attribution.txt" t="Include" />
+          </e>
+        </e>
         <e p="UniRx.Async" t="Include">
           <e p="AsyncUnit.cs" t="Include" />
           <e p="CancellationTokenEqualityComparer.cs" t="Include" />
@@ -1286,6 +1336,7 @@
         </e>
       </e>
       <e p="game-test-01.sln" t="IncludeFlat" />
+      <e p="node_modules\@tienhp\menu_system_with_zenject" t="IncludeRecursive" />
       <e p="node_modules\@umm\unirx_observabletween" t="IncludeRecursive" />
       <e p="obj" t="ExcludeRecursive" />
       <e p="packages" t="ExcludeRecursive" />

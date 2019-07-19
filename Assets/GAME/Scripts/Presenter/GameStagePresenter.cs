@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -25,6 +26,8 @@ public class GameStagePresenter : IGameStagePresenter
     [Inject(Id = Constant.ZenjectId.MainCamera)] private Camera _mainCamera;
     [Inject(Id = Constant.ZenjectId.WorldUIRoot)] private Transform _worldUIRoot;
 
+    private ISubject<bool> _gameOverSubject = new Subject<bool>();
+
     private List<CharacterModel> _characterModelList;
     private StageModel _stageModel;
     private SpineData[] _spineDataArray;
@@ -34,12 +37,13 @@ public class GameStagePresenter : IGameStagePresenter
     private string playerDataId;
 
     private Stage _stage;
-    private int _maxOrder = 0;
+    private int _maxOrder;
     private CancellationTokenSource _updatingHPBarToken;
     private GameConfig _gameConfig;
 
     private Vector3 _playerSpawnPos;
     private Vector3 _enemySpawnPos;
+    private bool _isAttacking = false;
 
     private Vector3 _offsetY = new Vector3(0,
         1.5f,
@@ -48,6 +52,11 @@ public class GameStagePresenter : IGameStagePresenter
     private int IncMax()
     {
         return ++_maxOrder;
+    }
+
+    public IObservable<bool> OnGameOverAsObservable()
+    {
+        return _gameOverSubject.AsObservable();
     }
 
 
@@ -76,7 +85,7 @@ public class GameStagePresenter : IGameStagePresenter
                 var character = new CharacterModel
                 {
                     Id = $"p-char{i}".ToString(),
-                    Damage = 50,
+                    Damage = 100,
                     IsPlayer = true,
                     SpineDataId = playerDataId
                 };
@@ -94,7 +103,7 @@ public class GameStagePresenter : IGameStagePresenter
                 var character = new CharacterModel
                 {
                     Id = $"e-char{i}".ToString(),
-                    Damage = 50,
+                    Damage = 100,
                     IsPlayer = false,
                     SpineDataId = ids[Random.Range(0,
                         ids.Count)]
@@ -159,10 +168,6 @@ public class GameStagePresenter : IGameStagePresenter
             model.IsDead.Where(isDead => isDead)
                 .Subscribe(b => OnDead(model));
         });
-
-//        //first push to change views
-//        _characterModelList.ToObservable()
-//            .Subscribe(model => model.HP = model.HP);
     }
 
     private void OnDead(CharacterModel model)
@@ -174,6 +179,16 @@ public class GameStagePresenter : IGameStagePresenter
         _characterViews.Remove(model.Id);
         _hpBarViews.Remove(model.Id);
         _characterModelList.RemoveAll(characterModel => characterModel.Id.Equals(model.Id));
+
+        //check win/lose 
+        if (_characterModelList.All(mode => mode.IsPlayer))
+        {
+            _gameOverSubject.OnNext(true);
+        }
+        else if (_characterModelList.All(mode => !mode.IsPlayer))
+        {
+            _gameOverSubject.OnNext(false);
+        }
     }
 
     private async UniTask UpdateHPBarPosAsync(CancellationToken cancellationToken)
@@ -201,6 +216,12 @@ public class GameStagePresenter : IGameStagePresenter
 
     public void InvokePlayerAttack()
     {
+        if (_isAttacking)
+        {
+            Debug.LogWarning("[GameStagePresenter] --> is attacking");
+            return;
+        }
+
         var playerCharacterIds = _characterModelList.Where(model => model.IsPlayer)
             .Select(model => model.Id)
             .ToList();
@@ -230,6 +251,7 @@ public class GameStagePresenter : IGameStagePresenter
     private void ProcessAttack(string attackerId,
         string targetId)
     {
+        _isAttacking = true;
         var attackerView = _characterViews[attackerId];
         var targetView = _characterViews[targetId];
 
@@ -241,6 +263,7 @@ public class GameStagePresenter : IGameStagePresenter
             {
                 OnBittenFinished = bittenParameters =>
                 {
+                    _isAttacking = false;
                     Debug.Log("[AttackingLogic] --> Finished bitten anim");
                     //apply dam
                     var charId = _characterViews.FirstOrDefault(pair => pair.Value == parameters.Character)
@@ -383,5 +406,19 @@ public class GameStagePresenter : IGameStagePresenter
             0);
         characterView.transform.localScale = localScale;
         return characterView;
+    }
+
+    public void Clear()
+    {
+        _characterViews.ToObservable()
+            .Subscribe(pair => { _characterViewPool.Despawn(pair.Value); });
+        _characterViews.Clear();
+        _hpBarViews.ToObservable()
+            .Subscribe(pair => _hpBarViewPool.Despawn(pair.Value));
+        _hpBarViews.Clear();
+        _characterModelList.Clear();
+        _characterViewPool.Clear();
+        _hpBarViewPool.Clear();
+        GameObject.Destroy(_stage.gameObject);
     }
 }

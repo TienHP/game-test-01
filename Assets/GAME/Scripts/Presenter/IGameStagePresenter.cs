@@ -1,3 +1,5 @@
+using System;
+
 public interface IGameStagePresenter : IPresenter
 {
     IGameStagePresenter SetSpineData(SpineData[] spineData);
@@ -9,4 +11,6 @@ public interface IGameStagePresenter : IPresenter
     void UpdateView();
     void InvokePlayerAttack();
     IGameStagePresenter SetConfig(GameConfig gameConfig);
+    IObservable<bool> OnGameOverAsObservable();
+    void Clear();
 }
