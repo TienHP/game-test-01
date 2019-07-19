@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UniRx;
+﻿using UniRx;
 using UnityEngine;
 using Zenject;
 
@@ -15,9 +14,9 @@ public class ProgramLogic : MonoBehaviour
     {
         Debug.Log("[ProgramLogic] downloading data...");
         //download and cache data
-        var idList = new[] {"3999", "4000"};
-        var playerCharacterId = "3999";
-        _gameState.SpineData = await _resourceLoader.LoadCharacterData(idList);
+        var dataIds = new[] {"3999", "4000"};
+        var playerDataId = "3999";
+        _gameState.SpineData = await _resourceLoader.LoadCharacterData(dataIds);
         Debug.Log("[ProgramLogic] --> Done.");
 
         Debug.Log("[ProgramLogic] creating skeleton data asset ...");
@@ -26,44 +25,18 @@ public class ProgramLogic : MonoBehaviour
             .Subscribe(data => data.SkeletonDataAsset = _resourceCreator.CreateSkeletonDataAsset(data));
         Debug.Log("[ProgramLogic] --> Done.");
 
-        Debug.Log("[ProgramLogic] creating model objects ...");
-        //init character models
-        _gameState.CharacterModels = idList.Select(id =>
-            {
-                if (id == playerCharacterId)
-                {
-                    return new CharacterModel
-                    {
-                        Id = id,
-                        HP = new ReactiveProperty<int>(100),
-                        Damage = 0,
-                        IsPlayer = true
-                    };
-                }
-
-                return new CharacterModel
-                {
-                    Id = id,
-                    HP = new ReactiveProperty<int>(100),
-                    Damage = 0,
-                    IsPlayer = false
-                };
-            })
-            .ToArray();
-
-        _gameState.StageModel = new StageModel
-        {
-            GroundRotationX = 60,
-            GroundPositionY = -5.0f,
-            SpriteRendererHeight = 15.6f,
-            SpriteRendererWidth = 15.6f
-        };
-
         //create character views and present the game stage
         Debug.Log("[ProgramLogic] Present ...");
-        _gameStagePresenter.SetCharacterModels(_gameState.CharacterModels)
+        _gameStagePresenter
             .SetSpineData(_gameState.SpineData)
-            .SetStageModel(_gameState.StageModel)
+            .SetDataIds(dataIds,
+                playerDataId)
+            .SetConfig(new GameConfig
+            {
+                PlayerCharacterNumber = 5,
+                EnemyCharacterNumber = 5
+            })
+            .Init()
             .UpdateView();
 
         //listen input from player
@@ -71,7 +44,7 @@ public class ProgramLogic : MonoBehaviour
             .Where(_ => Input.GetKeyUp(KeyCode.Space))
             .Subscribe(_ =>
             {
-                //attack enemy
+                //attack enemies
                 _gameStagePresenter.InvokePlayerAttack();
             });
     }

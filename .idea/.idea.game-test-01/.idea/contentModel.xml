@@ -27,10 +27,11 @@
               <e p="IView.cs" t="Include" />
             </e>
             <e p="Presenter" t="Include">
-              <e p="AttackingLogicStrategy.cs" t="Include" />
               <e p="GameStagePresenter.cs" t="Include" />
+              <e p="GroupAttackingLogicStrategy.cs" t="Include" />
               <e p="HPBarModel.cs" t="Include" />
               <e p="IGameStagePresenter.cs" t="Include" />
+              <e p="SimpleAttackingLogicStrategy.cs" t="Include" />
               <e p="TransformUtils.cs" t="Include" />
             </e>
             <e p="ProgramLogic.cs" t="Include" />

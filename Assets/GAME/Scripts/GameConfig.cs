@@ -1,17 +1,9 @@
-﻿using UnityEngine;
-using Zenject;
-
-public interface IGameConfig
+﻿public interface IGameConfig
 {
-    int MaxHP { get; }
 }
 
-public class GameConfig : IInitializable, IGameConfig
+public class GameConfig : IGameConfig
 {
-    public int MaxHP => 100;
-
-    public void Initialize()
-    {
-        Debug.Log("[GameConfig] --> Initialized");
-    }
+    public int PlayerCharacterNumber = 10;
+    public int EnemyCharacterNumber = 10;
 }

@@ -5,7 +5,8 @@ public static partial class Constant
 {
     public static class SpineData
     {
-        public const float Scale = 0.005f;
+        public const float Scale = 0.0015f;
+        public const string ModelConst = "axie";
     }
 }
 

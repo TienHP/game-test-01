@@ -35,20 +35,24 @@ public class GameInstaller : MonoInstaller<GameInstaller>
             .AsSingle();
         Container.BindInterfacesAndSelfTo<GameStagePresenter>()
             .AsSingle();
-        Container.BindInterfacesAndSelfTo<AttackingLogicStrategy>()
-            .AsSingle();
-        Container.BindIFactory<Character>()
+
+        Container.BindMemoryPool<Character, Character.Pool>()
+            .WithInitialSize(100)
             .FromComponentInNewPrefab(_characterPrefab)
             .UnderTransform(_worldRoot)
-            .AsSingle();
+            .AsCached();
+
         Container.BindIFactory<Stage>()
             .FromComponentInNewPrefab(_stagePrefab)
             .UnderTransform(_worldRoot)
             .AsSingle();
-        Container.BindIFactory<HPBarView>()
+
+        Container.BindMemoryPool<HPBarView, HPBarView.Pool>()
+            .WithInitialSize(100)
             .FromComponentInNewPrefab(_hpBarPrefab)
             .UnderTransform(_worldUIRoot.transform)
-            .AsSingle();
+            .AsCached();
+
         Container.Bind<Camera>()
             .WithId(Constant.ZenjectId.MainCamera)
             .FromInstance(_mainCamera);

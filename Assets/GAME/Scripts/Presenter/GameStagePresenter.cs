@@ -11,7 +11,7 @@ public static partial class Constant
 {
     public static class GameStagePresenter
     {
-        public const float HPBarHeightOnScreen = 250.0f;
+        public const float HPBarHeightOnScreen = 100.0f;
         public const float MoveDuration = 1.0f;
     }
 }
@@ -19,22 +19,31 @@ public static partial class Constant
 
 public class GameStagePresenter : IGameStagePresenter
 {
-    [Inject] private IFactory<Character> _characterViewFac;
+    [Inject] private Character.Pool _characterViewPool;
     [Inject] private IFactory<Stage> _stageFac;
-    [Inject] private IFactory<HPBarView> _hpBarViewFac;
+    [Inject] private HPBarView.Pool _hpBarViewPool;
     [Inject(Id = Constant.ZenjectId.MainCamera)] private Camera _mainCamera;
     [Inject(Id = Constant.ZenjectId.WorldUIRoot)] private Transform _worldUIRoot;
-    [Inject] private IAttackingLogicStrategy _attackingLogic;
 
-    private CharacterModel[] _characterModels;
+    private List<CharacterModel> _characterModelList;
     private StageModel _stageModel;
     private SpineData[] _spineDataArray;
     private readonly Dictionary<string, Character> _characterViews = new Dictionary<string, Character>();
     private Dictionary<string, HPBarView> _hpBarViews = new Dictionary<string, HPBarView>();
 
+    private string playerDataId;
+
     private Stage _stage;
     private int _maxOrder = 0;
     private CancellationTokenSource _updatingHPBarToken;
+    private GameConfig _gameConfig;
+
+    private Vector3 _playerSpawnPos;
+    private Vector3 _enemySpawnPos;
+
+    private Vector3 _offsetY = new Vector3(0,
+        1.5f,
+        0);
 
     private int IncMax()
     {
@@ -42,21 +51,64 @@ public class GameStagePresenter : IGameStagePresenter
     }
 
 
-    public IGameStagePresenter SetCharacterModels(CharacterModel[] characterModels)
-    {
-        _characterModels = characterModels;
-        return this;
-    }
-
     public IGameStagePresenter SetSpineData(SpineData[] spineData)
     {
         _spineDataArray = spineData;
         return this;
     }
 
-    public IGameStagePresenter SetStageModel(StageModel model)
+    public IGameStagePresenter SetDataIds(string[] idArray,
+        string playerDataId)
     {
-        _stageModel = model;
+        this.playerDataId = playerDataId;
+        return this;
+    }
+
+    public IGameStagePresenter Init()
+    {
+        //init models
+        _characterModelList = new List<CharacterModel>();
+        Enumerable.Range(0,
+                _gameConfig.PlayerCharacterNumber)
+            .ToObservable()
+            .Subscribe(i =>
+            {
+                var character = new CharacterModel
+                {
+                    Id = $"p-char{i}".ToString(),
+                    Damage = 50,
+                    IsPlayer = true,
+                    SpineDataId = playerDataId
+                };
+                _characterModelList.Add(character);
+            });
+
+        Enumerable.Range(0,
+                _gameConfig.EnemyCharacterNumber)
+            .ToObservable()
+            .Subscribe(i =>
+            {
+                var ids = _spineDataArray.Where(data => data.Id != playerDataId)
+                    .Select(data => data.Id)
+                    .ToList();
+                var character = new CharacterModel
+                {
+                    Id = $"e-char{i}".ToString(),
+                    Damage = 50,
+                    IsPlayer = false,
+                    SpineDataId = ids[Random.Range(0,
+                        ids.Count)]
+                };
+                _characterModelList.Add(character);
+            });
+
+        _stageModel = new StageModel
+        {
+            GroundRotationX = 60,
+            GroundPositionY = -2.0f,
+            SpriteRendererHeight = 20.0f,
+            SpriteRendererWidth = 20.0f
+        };
         return this;
     }
 
@@ -67,17 +119,23 @@ public class GameStagePresenter : IGameStagePresenter
         {
             _stage = _stageFac.Create();
             _stage.UpdateView(_stageModel);
+            _playerSpawnPos = _stage.PlayerPos;
+            _enemySpawnPos = _stage.EnemyPos;
         }
 
         if (_characterViews == null || _characterViews.Count == 0)
         {
-            InitViews();
+            InitCharacterViews();
         }
     }
 
-    private void InitViews()
+    private void InitCharacterViews()
     {
         CreateViews();
+
+        //play init anim
+        _characterViews.ToObservable()
+            .Subscribe(character => character.Value.PlayIdleAnim());
 
         //loop: update hp bar position
         _updatingHPBarToken = new CancellationTokenSource();
@@ -85,7 +143,7 @@ public class GameStagePresenter : IGameStagePresenter
             .SuppressCancellationThrow();
 
         //subscribe to reactive properties to update views
-        _characterModels.Join(_hpBarViews,
+        _characterModelList.Join(_hpBarViews,
                 model => model.Id,
                 hpBar => hpBar.Key,
                 (model,
@@ -96,9 +154,26 @@ public class GameStagePresenter : IGameStagePresenter
                 var (model, value) = pair;
                 model.HP.Subscribe(hp => value.UpdateView(hp));
             });
-        //first push to change views
-        _characterModels.ToObservable()
-            .Subscribe(model => model.HP = model.HP);
+        _characterModelList.ForEach(model =>
+        {
+            model.IsDead.Where(isDead => isDead)
+                .Subscribe(b => OnDead(model));
+        });
+
+//        //first push to change views
+//        _characterModelList.ToObservable()
+//            .Subscribe(model => model.HP = model.HP);
+    }
+
+    private void OnDead(CharacterModel model)
+    {
+        Debug.Log($"[GameStagePresenter] --> OnDead {model.Id} heath {model.HP.Value}");
+        _characterViewPool.Despawn(_characterViews[model.Id]);
+        _hpBarViewPool.Despawn(_hpBarViews[model.Id]);
+
+        _characterViews.Remove(model.Id);
+        _hpBarViews.Remove(model.Id);
+        _characterModelList.RemoveAll(characterModel => characterModel.Id.Equals(model.Id));
     }
 
     private async UniTask UpdateHPBarPosAsync(CancellationToken cancellationToken)
@@ -126,45 +201,125 @@ public class GameStagePresenter : IGameStagePresenter
 
     public void InvokePlayerAttack()
     {
-        Debug.Log("[GameStagePresenter] --> Invoking player attack ...");
-        var playerCharacters = from pair in _characterViews
-            join model in _characterModels.Where(model => model.IsPlayer) on pair.Key equals model.Id
-            select (pair.Value, model);
-
-        var enemiesCharacters = from pair in _characterViews
-            join model in _characterModels.Where(model => !model.IsPlayer) on pair.Key equals model.Id
-            select (pair.Value, model);
-
-        InvokeAttack(playerCharacters,
-            enemiesCharacters);
+        var playerCharacterIds = _characterModelList.Where(model => model.IsPlayer)
+            .Select(model => model.Id)
+            .ToList();
+        var enemyCharacterIds = _characterModelList.Where(model => !model.IsPlayer)
+            .Select(model => model.Id)
+            .ToList();
+        var attackerId = playerCharacterIds[Random.Range(0,
+            playerCharacterIds.Count)];
+        var targetId = enemyCharacterIds[Random.Range(0,
+            enemyCharacterIds.Count)];
+        ProcessAttack(attackerId,
+            targetId);
     }
 
-    private void InvokeAttack(IEnumerable<(Character view, CharacterModel model)> attackers,
-        IEnumerable<(Character view, CharacterModel model)> targets)
+    private Vector3 GetStartMovingPos(Character character)
     {
-        attackers.ToObservable()
-            .Subscribe(attacker =>
-            {
-                //random an enemy
-                var target = targets.ElementAt(Random.Range(0,
-                    targets.Count()));
-
-                _attackingLogic.SetAttackerView(attacker.view)
-                    .SetAttackerModel(attacker.model)
-                    .SetTargetView(target.view)
-                    .SetTargetModel(target.model)
-                    .Attack();
-            });
+        return character.Transform.position;
     }
+
+    private Vector3 GetStopMovingPos(Character character)
+    {
+        return character.Transform.position +
+               character.Transform.TransformDirection(Vector3.right) * -2.0f;
+    }
+
+
+    private void ProcessAttack(string attackerId,
+        string targetId)
+    {
+        var attackerView = _characterViews[attackerId];
+        var targetView = _characterViews[targetId];
+
+        //do when target bitten
+        void OnTargetBitten(AttackParameters parameters)
+        {
+            //play hit anim on target
+            parameters.Target.HitByAttack(new BittenParameters
+            {
+                OnBittenFinished = bittenParameters =>
+                {
+                    Debug.Log("[AttackingLogic] --> Finished bitten anim");
+                    //apply dam
+                    var charId = _characterViews.FirstOrDefault(pair => pair.Value == parameters.Character)
+                        .Key;
+                    var tarId = _characterViews.FirstOrDefault(pair => pair.Value == parameters.Target)
+                        .Key;
+                    var characterModel = _characterModelList.FirstOrDefault(model => model.Id.Equals(charId));
+                    var targetModel = _characterModelList.FirstOrDefault(model => model.Id.Equals(tarId));
+                    if (characterModel == null || targetModel == null)
+                    {
+                        return;
+                    }
+
+                    Debug.LogWarning($"{characterModel.Id} dameto {targetModel.Id}");
+                    targetModel.HP.Value -= Random.Range(5,
+                        characterModel.Damage + 1);
+                }
+            });
+        }
+
+        //enemy fight back
+        void OnTargetFightBack(MovingParameters parameters)
+        {
+            targetView.Attack(new AttackParameters
+            {
+                MoveDuration = Constant.GameStagePresenter.MoveDuration,
+                StartPos = GetStartMovingPos(targetView),
+                TargetPos = GetStopMovingPos(attackerView),
+                OnTargetBitten = OnTargetBitten,
+                Target = attackerView,
+                OnActionFinished = p =>
+                {
+                    p.Character.ComeBack(new MovingParameters
+                    {
+                        MoveDuration = Constant.GameStagePresenter.MoveDuration,
+                        StartPos = p.TargetPos,
+                        TargetPos = p.StartPos,
+                    });
+                }
+            });
+        }
+
+
+        attackerView.Attack(new AttackParameters
+        {
+            MoveDuration = Constant.GameStagePresenter.MoveDuration,
+            StartPos = GetStartMovingPos(attackerView),
+            TargetPos = GetStopMovingPos(targetView),
+            OnTargetBitten = OnTargetBitten,
+            Target = targetView,
+            OnActionFinished = p =>
+            {
+                p.Character.ComeBack(new MovingParameters
+                {
+                    MoveDuration = Constant.GameStagePresenter.MoveDuration,
+                    StartPos = p.TargetPos,
+                    TargetPos = p.StartPos,
+                    OnActionFinished = OnTargetFightBack
+                });
+            },
+        });
+    }
+
+
+    public IGameStagePresenter SetConfig(GameConfig gameConfig)
+    {
+        _gameConfig = gameConfig;
+        return this;
+    }
+
 
     private void CreateViews()
     {
-        _characterModels.ToObservable()
+        _characterModelList.ToObservable()
             .Subscribe(model => Debug.Log($"model id: {model.Id}"));
         _spineDataArray.ToObservable()
             .Subscribe(data => Debug.Log($"data id: {data.Id}"));
-        var characters = from model in _characterModels
-            join spineData in _spineDataArray on model.Id equals spineData.Id
+        var characters = from model in _characterModelList
+            join spineData in _spineDataArray on model.SpineDataId equals spineData.Id
             select (spineData, model);
         if (!characters.Any())
         {
@@ -182,7 +337,7 @@ public class GameStagePresenter : IGameStagePresenter
                 _characterViews.Add(characterData.model.Id,
                     characterView);
                 //create and add hp bar view
-                var hpBarView = _hpBarViewFac.Create();
+                var hpBarView = _hpBarViewPool.Spawn();
                 _hpBarViews.Add(characterData.model.Id,
                     hpBarView);
             });
@@ -192,14 +347,25 @@ public class GameStagePresenter : IGameStagePresenter
     private Character CreateCharacterView((SpineData spineData, CharacterModel model) characterData,
         int sortingOrder)
     {
-        var characterView = _characterViewFac.Create();
+        var characterView = _characterViewPool.Spawn();
+        characterView.gameObject.name = characterData.model.Id;
         //update view by data asset and model
         characterView.UpdateView(characterData.spineData.SkeletonDataAsset);
 
         //and set the view at right position
         characterView.transform.position = characterData.model.IsPlayer
-            ? _stage.PlayerPos
-            : _stage.EnemyPos;
+            ? _playerSpawnPos
+            : _enemySpawnPos;
+
+        if (characterData.model.IsPlayer)
+        {
+            _playerSpawnPos += _offsetY;
+        }
+        else
+        {
+            _enemySpawnPos += _offsetY;
+        }
+
 
         characterView.SetSortingOrder(characterData.model.IsPlayer
             ? sortingOrder + 1

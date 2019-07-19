@@ -2,6 +2,13 @@
 # yarn lockfile v1
 
 
+"@tienhp/menu_system_with_zenject@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@tienhp/menu_system_with_zenject/-/menu_system_with_zenject-1.0.0.tgz#eb14827f0c5b92064436654f2a395457aaf89322"
+  integrity sha512-kKyNZKT8MzMoGMCR1CS11Q8/zj0sLb8OFKaA8C75hzC3cIttb10DadHBFxRdKe9QqZMDi768dNIKpwclmw7yFw==
+  dependencies:
+    "@umm/scripts" umm/scripts#^1.0.0
+
 "@umm/scripts@umm/scripts#^1.0.0":
   version "1.4.1"
   resolved "https://codeload.github.com/umm/scripts/tar.gz/53d1def490dbb897b27b84e918c6be8e4f50d958"

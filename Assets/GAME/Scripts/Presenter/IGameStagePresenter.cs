@@ -1,8 +1,12 @@
 public interface IGameStagePresenter : IPresenter
 {
-    IGameStagePresenter SetCharacterModels(CharacterModel[] characterModels);
     IGameStagePresenter SetSpineData(SpineData[] spineData);
-    IGameStagePresenter SetStageModel(StageModel stageModel);
+
+    IGameStagePresenter SetDataIds(string[] idArray,
+        string playerDataId);
+
+    IGameStagePresenter Init();
     void UpdateView();
     void InvokePlayerAttack();
+    IGameStagePresenter SetConfig(GameConfig gameConfig);
 }

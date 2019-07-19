@@ -18,7 +18,7 @@ public class ResourceCreator
         {
             mainTexture = spineData.CharTexture
         };
-        mat.mainTexture.name = "axie";
+        mat.mainTexture.name = Constant.SpineData.ModelConst;
         Debug.Log("Texture name: " + spineData.CharTexture.name);
         mat.SetTexture("_MainText",
             spineData.CharTexture);
